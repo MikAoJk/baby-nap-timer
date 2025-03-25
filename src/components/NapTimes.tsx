@@ -1,7 +1,7 @@
 'use client';
 
 import {useState} from "react";
-import {NapList} from "@/components/NapList";
+import {NapTime} from "@/components/NapTime";
 
 export interface Nap {
     action: string;
@@ -16,7 +16,7 @@ const NapTimes = () => {
     const setInnTrueHandler = () => {
         const currentDate = new Date()
         const newNap = {action: 'nap-start', time: currentDate};
-        if (naps == undefined) {
+        if (naps == undefined || naps[1].action === 'nap-end') {
             const firstNaps: Nap[] = [
                 {
                     action: 'nap-start', time: currentDate
@@ -46,39 +46,6 @@ const NapTimes = () => {
         setNap(false);
     }
 
-    const timeNapping = (seconds: number) => {
-        const calculatedNapTime: CalculatedNapTime = {
-            hours: 0,
-            min: 0,
-            sec: 0
-        };
-
-        if (seconds >= 3600) {
-            calculatedNapTime.hours = Math.floor(seconds / 3600);
-            seconds -= calculatedNapTime.hours * 3600;
-        }
-        if (seconds >= 60) {
-            calculatedNapTime.min = Math.floor(seconds / 60);
-            seconds -= calculatedNapTime.min * 60;
-
-        }
-        calculatedNapTime.sec = seconds;
-
-        return calculatedNapTime;
-    }
-
-    function napTime(): CalculatedNapTime | null {
-        if (naps != undefined && naps.length >= 2) {
-
-            // TODO pair every start and stop nap, together
-            const diffInSeconds: number = (((naps[1].time.getTime().valueOf()) - (naps[0].time.getTime().valueOf())) / 1000)
-
-            return timeNapping(diffInSeconds)
-
-        } else return null
-    }
-
-
     return (
 
         <div className="flex flex-col items-center justify-center">
@@ -94,26 +61,14 @@ const NapTimes = () => {
             </button>
             }
             {(naps != undefined) &&
-                <ul className="my-6 text-left">
-                    {naps.map((nap, index) => (
-                        <NapList key={index} nap={nap}/>
-                    ))}
-
+                <ul className="my-6 text-left w-64">
+                    <NapTime naps={naps}/>
                 </ul>}
-            {(naps != undefined && napTime()) &&
-                <ul className="my-6 text-left">
-                    {<li>Hours: {napTime()?.hours} Min:{napTime()?.min}  Sec:{napTime()?.sec.toFixed()} </li>}
-                </ul>}
-
         </div>
+
     )
         ;
 };
 
-interface CalculatedNapTime {
-    sec: number;
-    hours: number;
-    min: number;
-}
 
 export default NapTimes;
